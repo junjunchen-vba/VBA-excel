@@ -1,0 +1,59 @@
+Sub fengongzuobiao()
+    Dim wb As Workbook, arr(1 To 2), d As Object, k1, k, t, i&, j&, m&, l%, shn$
+    Application.ScreenUpdating = False
+    Application.DisplayAlerts = False
+    Set d = CreateObject("scripting.dictionary")
+    For l = 1 To 2
+        With Sheets(l)
+            shn = .Name
+            arr(l) = .[a1].CurrentRegion
+            If l = 1 Then          'a是表头行数+1,b是分表基准列数
+            a = 3
+            b = 2
+            Else
+            a = 2
+            b = 2
+            End If
+            
+            For i = a To UBound(arr(l))
+                If Not d.Exists(arr(l)(i, b)) Then Set d(arr(l)(i, b)) = CreateObject("scripting.dictionary")
+                d(arr(l)(i, b))(shn) = d(arr(l)(i, b))(shn) & "," & i
+            Next
+        End With
+    Next
+    k1 = d.keys
+    p = ActiveWorkbook.Path & "\"
+    For n = 0 To UBound(k1)
+        Sheets.Copy
+        Set wb = ActiveWorkbook
+        k = d(k1(n)).keys
+        t = d(k1(n)).Items
+        For l = 0 To UBound(k)
+            brr = arr(l + 1)
+            With wb.Sheets(k(l))
+                If l = 0 Then       'a是表头行数+1
+                a = 3
+                Else
+                a = 2
+                End If
+                                
+                f = a
+                m = 0
+                a = Split(t(l), ",")
+                For i = 1 To UBound(a)
+                    m = m + 1
+                    For j = 1 To UBound(arr(l + 1), 2)
+                        brr(m, j) = arr(l + 1)(a(i), j)
+                    Next
+                Next
+                .Cells(f, 1).Resize(m, j - 1) = brr
+                .UsedRange.Offset(m + f - 1).Clear
+            End With
+        Next
+        wb.SaveAs Filename:=p & "2020P02YTD代销商业绩完成简报 - "& k1(n) & ".xlsx"
+        wb.Close
+    Next n
+    Application.DisplayAlerts = True
+    Application.ScreenUpdating = True
+    MsgBox "完毕"
+End Sub
