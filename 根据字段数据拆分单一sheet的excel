@@ -1,0 +1,35 @@
+Option Explicit
+
+Sub lsc()
+      Dim arr, d As Object, k, t, i&, lc%, rng As Range, c%
+      c = Application.InputBox("请输入拆分列号", , 4, , , , , 1)
+      If c = 0 Then Exit Sub                            'c为拆分列数
+      Application.ScreenUpdating = False
+      Application.DisplayAlerts = False
+      arr = [a1].CurrentRegion                          'a1单元格不间断区域
+      lc = UBound(arr, 2)                               'a1的活动单元格的最大元素个数，即有多少个单元格
+      Set rng = [a1].Resize(, lc)                       '扩大范围并赋值单元格区域
+      Set d = CreateObject("scripting.dictionary")
+      
+      For i = 2 To UBound(arr)                          '从第二行开始
+          If Not d.Exists(arr(i, c)) Then               '如果第二行第二列交叉单元格不存在d中
+              Set d(arr(i, c)) = arr.Cells(i, 1).Resize(1, lc)       'A2单元格所在的记录行赋值给d
+          Else
+              Set d(arr(i, c)) = Union(d(arr(i, c)), arr.Cells(i, 1).Resize(1, lc))             '否则如果存在非空记录，则追加前面的所有记录
+          End If
+      Next i
+      
+      k = d.Keys                                        '提取所有键并组成一个序列
+      t = d.Items                                       '提取所有主键对应的值并组成一个序列
+      For i = 0 To d.Count - 1
+          With Workbooks.Add(xlWBATWorksheet)           '新建一个工作簿并新建一个sheet
+              rng.Copy .Sheets(1).[a1]                  '制作标题行
+              t(i).Copy .Sheets(1).[a2]                 '将前面所有追加的记录集合复制从A2开始的单元格
+              .SaveAs Filename:=ThisWorkbook.Path & "\" & "2019H1代销商发运激励计算公式-" & k(i) & ".xlsx", FileFormat:=xlOpenXMLWorkbook, CreateBackup:=False
+              .Close
+          End With
+      Next
+      Application.DisplayAlerts = True
+      Application.ScreenUpdating = True
+      MsgBox "完毕"
+End Sub
