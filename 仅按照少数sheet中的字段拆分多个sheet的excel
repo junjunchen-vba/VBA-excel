@@ -1,0 +1,51 @@
+Sub 拆分沟通包()
+    Dim i, n, k As Integer, m As String
+    Application.ScreenUpdating = False
+    Application.DisplayAlerts = False
+    
+
+    '复制4张excel
+    For i = 1 To 4
+        m = Workbooks("P02YTD合作伙伴月度沟通包").Worksheets("订单").Cells(i + 4, 3)
+        Worksheets.Copy
+        ActiveWorkbook.SaveAs Filename:="C:\Users\CHENJ32\Desktop\学习VBA" & "\P02YTD合作伙伴月度沟通包 - " & m & ".xlsx"
+         
+         '根据对应sheet中的字段删除其他行
+        n = 4
+        Do While Worksheets("管道分析").Cells(n, 1) <> ""
+              If Worksheets("管道分析").Cells(n, 1) <> Worksheets("订单").Cells(i + 4, 3) Then
+                  Worksheets("管道分析").Cells(n, 1).Resize(1, 100).Delete
+                   n = n - 1
+              End If
+        n = n + 1
+        Loop
+            
+          '根据对应sheet中的字段删除其他行               
+         n = 5
+         Do While Worksheets("订单").Cells(n, 3) <> ""
+               If Worksheets("订单").Cells(n, 3) <> m Then
+                   Worksheets("订单").Cells(n, 1).Resize(1, 100).Delete
+                   n = n - 1
+               End If
+         n = n + 1
+         Loop
+              
+          '根据对应sheet中的字段删除其他行               
+         n = 4
+         Do While Worksheets("发运").Cells(n, 1) <> ""
+               If Worksheets("发运").Cells(n, 1) <> m Then
+                   Worksheets("发运").Cells(n, 1).Resize(1, 100).Delete
+                    n = n - 1
+               End If
+         n = n + 1
+         Loop
+        
+        
+        
+        ActiveWorkbook.Save
+        ActiveWorkbook.Close
+    Next i
+Application.DisplayAlerts = True
+Application.ScreenUpdating = True
+MsgBox "完毕"
+End Sub
